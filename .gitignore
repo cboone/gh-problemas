@@ -8,6 +8,9 @@
 *.so
 *.dylib
 
+# Extension binary
+gh-problemas
+
 # Test binary, built with `go test -c`
 *.test
 
