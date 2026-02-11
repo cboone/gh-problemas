@@ -150,6 +150,7 @@ func (d *DashboardView) Init() tea.Cmd {
 	client := d.issueClient
 	pageSize := d.pageSize
 	spinCmd := d.spinner.Start("Loading issues...")
+	statusCmd := ui.StatusLoading("Loading issues...")
 	fetchCmd := func() tea.Msg {
 		result, err := client.List(data.IssueListOptions{
 			States: []string{"OPEN"},
@@ -157,7 +158,7 @@ func (d *DashboardView) Init() tea.Cmd {
 		})
 		return ui.IssuesLoadedMsg{Result: result, Err: err}
 	}
-	return tea.Batch(spinCmd, fetchCmd)
+	return tea.Batch(spinCmd, statusCmd, fetchCmd)
 }
 
 // Update implements ui.View.
@@ -187,7 +188,8 @@ func (d *DashboardView) Update(msg tea.Msg) (ui.View, tea.Cmd) {
 		}
 		cmd := d.list.SetItems(items)
 		d.updateTitle()
-		return d, cmd
+		statusCmd := ui.StatusInfo(fmt.Sprintf("Showing %d issues", d.paginator.TotalLoaded()))
+		return d, tea.Batch(cmd, statusCmd)
 
 	case ui.IssuesPageLoadedMsg:
 		d.loadingMore = false
@@ -205,7 +207,8 @@ func (d *DashboardView) Update(msg tea.Msg) (ui.View, tea.Cmd) {
 		}
 		cmd := d.list.SetItems(existing)
 		d.updateTitle()
-		return d, cmd
+		statusCmd := ui.StatusInfo(fmt.Sprintf("Showing %d issues", d.paginator.TotalLoaded()))
+		return d, tea.Batch(cmd, statusCmd)
 
 	case tea.KeyMsg:
 		if key.Matches(msg, d.keys.Open) {
@@ -222,6 +225,7 @@ func (d *DashboardView) Update(msg tea.Msg) (ui.View, tea.Cmd) {
 			client := d.issueClient
 			pageSize := d.pageSize
 			spinCmd := d.spinner.Start("Refreshing...")
+			statusCmd := ui.StatusLoading("Refreshing issues...")
 			fetchCmd := func() tea.Msg {
 				result, err := client.List(data.IssueListOptions{
 					States: []string{"OPEN"},
@@ -229,7 +233,7 @@ func (d *DashboardView) Update(msg tea.Msg) (ui.View, tea.Cmd) {
 				})
 				return ui.IssuesLoadedMsg{Result: result, Err: err}
 			}
-			return d, tea.Batch(spinCmd, fetchCmd)
+			return d, tea.Batch(spinCmd, statusCmd, fetchCmd)
 		}
 		if key.Matches(msg, d.keys.NextPage) && !d.loadingMore {
 			req := d.paginator.NextPageRequest()
@@ -239,6 +243,7 @@ func (d *DashboardView) Update(msg tea.Msg) (ui.View, tea.Cmd) {
 				after := req.After
 				first := req.First
 				spinCmd := d.spinner.Start("Loading more...")
+				statusCmd := ui.StatusLoading("Loading more issues...")
 				fetchCmd := func() tea.Msg {
 					result, err := client.List(data.IssueListOptions{
 						States: []string{"OPEN"},
@@ -247,8 +252,9 @@ func (d *DashboardView) Update(msg tea.Msg) (ui.View, tea.Cmd) {
 					})
 					return ui.IssuesPageLoadedMsg{Result: result, Append: true, Err: err}
 				}
-				return d, tea.Batch(spinCmd, fetchCmd)
+				return d, tea.Batch(spinCmd, statusCmd, fetchCmd)
 			}
+			return d, ui.StatusInfo(fmt.Sprintf("Showing %d issues", d.paginator.TotalLoaded()))
 		}
 	}
 

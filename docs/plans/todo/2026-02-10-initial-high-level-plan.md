@@ -265,36 +265,36 @@ keybindings:
 
 Ship a usable read-only issue triage loop quickly.
 
-- [ ] Initialize Go module and core dependencies
-- [ ] Cobra root command with `--help` and `--version`
-- [ ] Implement `internal/data/` GraphQL issue listing for current repo
-- [ ] Bubble Tea app shell + dashboard list/table view
-- [ ] Loading and error states (status bar + spinner)
-- [ ] Keyboard navigation (`j`/`k`, open detail, back)
-- [ ] Detail view with rendered markdown issue body only
+- [x] Initialize Go module and core dependencies
+- [x] Cobra root command with `--help` and `--version`
+- [x] Implement `internal/data/` GraphQL issue listing for current repo
+- [x] Bubble Tea app shell + dashboard list/table view
+- [x] Loading and error states (status bar + spinner)
+- [x] Keyboard navigation (`j`/`k`, open detail, back)
+- [x] Detail view with rendered markdown issue body only
 
 Definition of done:
 
-- [ ] A user can run `gh problemas` and see open issues in the current repo
-- [ ] A user can open an issue and return to the dashboard without losing list state
-- [ ] `go test ./...` passes for implemented packages
-- [ ] Scrut coverage includes CLI help/version, boot -> list -> detail -> back -> quit, error states, and narrow-width layout snapshots
+- [x] A user can run `gh problemas` and see open issues in the current repo
+- [x] A user can open an issue and return to the dashboard without losing list state
+- [x] `go test ./...` passes for implemented packages
+- [x] Scrut coverage includes CLI help/version, boot -> list -> detail -> back -> quit, error states, and narrow-width layout snapshots
 
 ### Phase 1B — Detail Depth, Pagination & Config Baseline
 
 Round out the read-only foundation before feature expansion.
 
-- [ ] Cursor-based pagination helper for GraphQL reads
-- [ ] Resolve `@me` alias to authenticated username via `go-gh`
-- [ ] Add comments and key metadata to detail view
-- [ ] Status bar refinements (repo context, key hints, API/network failures)
-- [ ] Load config from `~/.config/gh-problemas/config.yml` with defaults
+- [x] Cursor-based pagination helper for GraphQL reads
+- [x] Resolve `@me` alias to authenticated username via `go-gh`
+- [x] Add comments and key metadata to detail view
+- [x] Status bar refinements (repo context, key hints, API/network failures)
+- [x] Load config from `~/.config/gh-problemas/config.yml` with defaults
 
 Definition of done:
 
-- [ ] Lists and detail views handle repositories with large issue counts reliably
-- [ ] Config defaults work with zero user setup
-- [ ] `go test ./...` and targeted Scrut scenarios for pagination, comments, config behavior, and error states pass
+- [x] Lists and detail views handle repositories with large issue counts reliably
+- [x] Config defaults work with zero user setup
+- [x] `go test ./...` and targeted Scrut scenarios for pagination, comments, config behavior, and error states pass
 
 ### Phase 2 — Sections, Filtering & Search
 

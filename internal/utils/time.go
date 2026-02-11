@@ -5,6 +5,8 @@ import (
 	"time"
 )
 
+const defaultDateFormat = "relative"
+
 // RelativeTime returns a human-readable relative time string.
 func RelativeTime(t time.Time) string {
 	if t.IsZero() {
@@ -30,4 +32,20 @@ func RelativeTime(t time.Time) string {
 	default:
 		return fmt.Sprintf("%dy ago", int(d.Hours()/(24*365)))
 	}
+}
+
+// FormatTime returns a timestamp formatted according to the configured format.
+// Supported modes:
+// - "relative" (or empty): human-readable relative time
+// - any Go time layout string (for example "2006-01-02")
+func FormatTime(t time.Time, format string) string {
+	if t.IsZero() {
+		return ""
+	}
+
+	if format == "" || format == defaultDateFormat {
+		return RelativeTime(t)
+	}
+
+	return t.Local().Format(format)
 }

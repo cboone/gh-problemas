@@ -185,10 +185,10 @@ View interface {
 - Empty issue list snapshot coverage (no-data state)
 
 ### Phase 1A Definition of Done
-- [ ] User runs `gh problemas`, sees open issues in current repo
-- [ ] User opens issue detail, returns to dashboard without losing list state (view stack)
-- [ ] `go test ./...` passes for all packages
-- [ ] Scrut covers help/version, boot -> list -> detail -> back -> quit, error states, and layout snapshots
+- [x] User runs `gh problemas`, sees open issues in current repo
+- [x] User opens issue detail, returns to dashboard without losing list state (view stack)
+- [x] `go test ./...` passes for all packages
+- [x] Scrut covers help/version, boot -> list -> detail -> back -> quit, error states, and layout snapshots
 
 ---
 
@@ -270,11 +270,11 @@ View interface {
 - Scrut `tests/scrut/phase1b-config.md`: startup with no config, then startup with custom `page_size` and `date_format` to verify visible behavior
 
 ### Phase 1B Definition of Done
-- [ ] Large issue lists handled via cursor-based pagination with "load more"
-- [ ] Detail view shows comments and metadata
-- [ ] Zero-config works (no config file needed, all defaults applied)
-- [ ] `go test ./...` passes for all packages
-- [ ] Scrut covers pagination, comments rendering, config defaults/overrides, and network error states
+- [x] Large issue lists handled via cursor-based pagination with "load more"
+- [x] Detail view shows comments and metadata
+- [x] Zero-config works (no config file needed, all defaults applied)
+- [x] `go test ./...` passes for all packages
+- [x] Scrut covers pagination, comments rendering, config defaults/overrides, and network error states
 
 ---
 

@@ -44,3 +44,30 @@ func TestRelativeTime_Future(t *testing.T) {
 		t.Errorf("RelativeTime(future) = %q, want 'just now'", got)
 	}
 }
+
+func TestFormatTime_DefaultsToRelative(t *testing.T) {
+	timeValue := time.Now().Add(-5 * time.Minute)
+	want := RelativeTime(timeValue)
+
+	if got := FormatTime(timeValue, ""); got != want {
+		t.Errorf("FormatTime(empty) = %q, want %q", got, want)
+	}
+
+	if got := FormatTime(timeValue, "relative"); got != want {
+		t.Errorf("FormatTime(relative) = %q, want %q", got, want)
+	}
+}
+
+func TestFormatTime_CustomLayout(t *testing.T) {
+	timeValue := time.Date(2025, time.March, 1, 10, 30, 0, 0, time.UTC)
+	got := FormatTime(timeValue, "2006-01-02")
+	if got != "2025-03-01" {
+		t.Errorf("FormatTime(custom) = %q, want %q", got, "2025-03-01")
+	}
+}
+
+func TestFormatTime_Zero(t *testing.T) {
+	if got := FormatTime(time.Time{}, "2006-01-02"); got != "" {
+		t.Errorf("FormatTime(zero) = %q, want empty string", got)
+	}
+}

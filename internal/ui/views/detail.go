@@ -16,32 +16,41 @@ import (
 
 // DetailView shows a single issue with its rendered markdown body and comments.
 type DetailView struct {
-	viewport      viewport.Model
-	issueClient   *data.IssueClient
-	commentClient *data.CommentClient
-	spinner       *components.Spinner
-	styles        ui.Styles
-	keys          ui.KeyMap
-	issueNumber   int
-	issue         *data.Issue
-	comments      []data.Comment
-	loading       bool
+	viewport        viewport.Model
+	issueClient     *data.IssueClient
+	commentClient   *data.CommentClient
+	spinner         *components.Spinner
+	styles          ui.Styles
+	keys            ui.KeyMap
+	dateFormat      string
+	issueNumber     int
+	issue           *data.Issue
+	comments        []data.Comment
+	loading         bool
 	loadingComments bool
-	errMsg        string
-	width         int
-	height        int
+	errMsg          string
+	width           int
+	height          int
 }
 
 // NewDetailView creates a new detail view for the given issue number.
 func NewDetailView(client *data.IssueClient, styles ui.Styles, keys ui.KeyMap, issueNumber, width, height int) *DetailView {
-	return NewDetailViewWithComments(client, nil, styles, keys, issueNumber, width, height)
+	return NewDetailViewWithCommentsAndDateFormat(client, nil, styles, keys, issueNumber, width, height, "relative")
 }
 
 // NewDetailViewWithComments creates a detail view with a comment client.
 func NewDetailViewWithComments(client *data.IssueClient, commentClient *data.CommentClient, styles ui.Styles, keys ui.KeyMap, issueNumber, width, height int) *DetailView {
+	return NewDetailViewWithCommentsAndDateFormat(client, commentClient, styles, keys, issueNumber, width, height, "relative")
+}
+
+// NewDetailViewWithCommentsAndDateFormat creates a detail view with comments and configurable timestamp formatting.
+func NewDetailViewWithCommentsAndDateFormat(client *data.IssueClient, commentClient *data.CommentClient, styles ui.Styles, keys ui.KeyMap, issueNumber, width, height int, dateFormat string) *DetailView {
 	vp := viewport.New(width, height)
 	vp.SetContent("Loading...")
 	spinner := components.NewSpinner(styles.Spinner)
+	if dateFormat == "" {
+		dateFormat = "relative"
+	}
 
 	return &DetailView{
 		viewport:      vp,
@@ -50,6 +59,7 @@ func NewDetailViewWithComments(client *data.IssueClient, commentClient *data.Com
 		spinner:       spinner,
 		styles:        styles,
 		keys:          keys,
+		dateFormat:    dateFormat,
 		issueNumber:   issueNumber,
 		loading:       true,
 		width:         width,
@@ -62,11 +72,12 @@ func (d *DetailView) Init() tea.Cmd {
 	client := d.issueClient
 	number := d.issueNumber
 	spinCmd := d.spinner.Start("Loading issue...")
+	statusCmd := ui.StatusLoading("Loading issue...")
 	fetchCmd := func() tea.Msg {
 		issue, err := client.Get(number)
 		return ui.IssueDetailLoadedMsg{Issue: issue, Err: err}
 	}
-	return tea.Batch(spinCmd, fetchCmd)
+	return tea.Batch(spinCmd, statusCmd, fetchCmd)
 }
 
 // Update implements ui.View.
@@ -96,7 +107,8 @@ func (d *DetailView) Update(msg tea.Msg) (ui.View, tea.Cmd) {
 			d.loadingComments = true
 			cc := d.commentClient
 			number := d.issueNumber
-			return d, func() tea.Msg {
+			statusCmd := ui.StatusLoading("Loading comments...")
+			fetchCmd := func() tea.Msg {
 				result, err := cc.List(number, 25, "")
 				return ui.CommentsLoadedMsg{
 					Comments: result.Comments,
@@ -104,8 +116,9 @@ func (d *DetailView) Update(msg tea.Msg) (ui.View, tea.Cmd) {
 					Err:      err,
 				}
 			}
+			return d, tea.Batch(statusCmd, fetchCmd)
 		}
-		return d, nil
+		return d, ui.StatusInfo(fmt.Sprintf("Loaded issue #%d", msg.Issue.Number))
 
 	case ui.CommentsLoadedMsg:
 		d.loadingComments = false
@@ -115,7 +128,10 @@ func (d *DetailView) Update(msg tea.Msg) (ui.View, tea.Cmd) {
 		}
 		d.comments = msg.Comments
 		d.renderContent()
-		return d, nil
+		if len(msg.Comments) == 0 {
+			return d, ui.StatusInfo("No comments")
+		}
+		return d, ui.StatusInfo(fmt.Sprintf("Loaded %d comments", len(msg.Comments)))
 
 	case tea.KeyMsg:
 		if key.Matches(msg, d.keys.Back) {
@@ -182,8 +198,8 @@ func (d *DetailView) renderContent() {
 	metaParts := []string{
 		fmt.Sprintf("State: %s", issue.State),
 		fmt.Sprintf("Author: %s", issue.Author),
-		fmt.Sprintf("Created: %s", utils.RelativeTime(issue.CreatedAt)),
-		fmt.Sprintf("Updated: %s", utils.RelativeTime(issue.UpdatedAt)),
+		fmt.Sprintf("Created: %s", utils.FormatTime(issue.CreatedAt, d.dateFormat)),
+		fmt.Sprintf("Updated: %s", utils.FormatTime(issue.UpdatedAt, d.dateFormat)),
 	}
 	if issue.Milestone != "" {
 		metaParts = append(metaParts, fmt.Sprintf("Milestone: %s", issue.Milestone))
@@ -241,7 +257,7 @@ func (d *DetailView) renderContent() {
 		for i, c := range d.comments {
 			sb.WriteString(authorStyle.Render(c.Author))
 			sb.WriteString(" ")
-			sb.WriteString(timeStyle.Render(utils.RelativeTime(c.CreatedAt)))
+			sb.WriteString(timeStyle.Render(utils.FormatTime(c.CreatedAt, d.dateFormat)))
 			if c.Reactions > 0 {
 				sb.WriteString(timeStyle.Render(fmt.Sprintf("  %d reactions", c.Reactions)))
 			}

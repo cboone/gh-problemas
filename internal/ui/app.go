@@ -54,6 +54,34 @@ type CommentsLoadedMsg struct {
 	Err      error
 }
 
+// StatusLevel determines how status text is rendered.
+type StatusLevel int
+
+const (
+	StatusLevelInfo StatusLevel = iota
+	StatusLevelLoading
+)
+
+// StatusMessageMsg updates the status bar message text.
+type StatusMessageMsg struct {
+	Text  string
+	Level StatusLevel
+}
+
+// StatusInfo returns a command that displays an informational status message.
+func StatusInfo(text string) tea.Cmd {
+	return func() tea.Msg {
+		return StatusMessageMsg{Text: text, Level: StatusLevelInfo}
+	}
+}
+
+// StatusLoading returns a command that displays a loading status message.
+func StatusLoading(text string) tea.Cmd {
+	return func() tea.Msg {
+		return StatusMessageMsg{Text: text, Level: StatusLevelLoading}
+	}
+}
+
 // ViewFactory creates the initial view to push onto the stack.
 type ViewFactory func(app *App) View
 
@@ -62,16 +90,16 @@ type DetailViewFactory func(app *App, issueNumber int) View
 
 // App is the top-level Bubble Tea model.
 type App struct {
-	viewStack       []View
-	statusBar       *components.StatusBar
-	keys            KeyMap
-	styles          Styles
-	issueClient     *data.IssueClient
-	width           int
-	height          int
-	repoName        string
-	initView        ViewFactory
-	detailViewFn    DetailViewFactory
+	viewStack    []View
+	statusBar    *components.StatusBar
+	keys         KeyMap
+	styles       Styles
+	issueClient  *data.IssueClient
+	width        int
+	height       int
+	repoName     string
+	initView     ViewFactory
+	detailViewFn DetailViewFactory
 }
 
 // NewApp creates a new App with the given issue client, repo name, and view factories.
@@ -207,6 +235,38 @@ func (a *App) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		a.PopView()
 		a.statusBar.SetMessage("")
 		return a, nil
+
+	case StatusMessageMsg:
+		if msg.Text == "" {
+			a.statusBar.SetMessage("")
+			return a, nil
+		}
+		if msg.Level == StatusLevelLoading {
+			a.statusBar.SetLoading(msg.Text)
+			return a, nil
+		}
+		a.statusBar.SetInfo(msg.Text)
+		return a, nil
+
+	case IssuesLoadedMsg:
+		if msg.Err != nil {
+			a.statusBar.SetError(msg.Err)
+		}
+
+	case IssuesPageLoadedMsg:
+		if msg.Err != nil {
+			a.statusBar.SetError(msg.Err)
+		}
+
+	case IssueDetailLoadedMsg:
+		if msg.Err != nil {
+			a.statusBar.SetError(msg.Err)
+		}
+
+	case CommentsLoadedMsg:
+		if msg.Err != nil {
+			a.statusBar.SetError(msg.Err)
+		}
 	}
 
 	// Delegate to current view
