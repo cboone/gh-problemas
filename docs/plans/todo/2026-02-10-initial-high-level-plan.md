@@ -26,7 +26,7 @@ gh problemas
 | GitHub API | **go-gh v2** (cli/go-gh) | Inherits `gh` auth, REST + GraphQL clients, repo context |
 | CLI framework | **Cobra** | Subcommands, flags, help generation |
 | Config | **Viper** + YAML | User-configurable dashboards, keybindings, themes |
-| CI/CD | **gh-extension-precompile** action | Automated cross-platform releases |
+| CI/CD | **gh-extension-precompile** action | Automated cross-platform releases, purpose-built for gh extensions |
 
 ---
 
@@ -114,9 +114,10 @@ gh-problemas/
 │   │   ├── labels.go        # Label CRUD
 │   │   ├── milestones.go    # Milestone queries
 │   │   ├── comments.go      # Comment queries and mutations
-│   │   └── models.go        # Shared data models
+│   │   ├── pagination.go    # Cursor-based pagination helpers
+│   │   └── models.go        # Data models (split by domain as they grow)
 │   ├── ui/                  # Bubble Tea TUI layer
-│   │   ├── app.go           # Top-level app model, routing between views
+│   │   ├── app.go           # Top-level app model, view stack routing
 │   │   ├── keys.go          # Keymap definitions
 │   │   ├── styles.go        # Lip Gloss style definitions
 │   │   ├── theme.go         # Theme support (light/dark/custom)
@@ -126,6 +127,7 @@ gh-problemas/
 │   │   │   ├── filter.go    # Filter bar component
 │   │   │   ├── statusbar.go # Bottom status bar
 │   │   │   ├── header.go    # Top header bar
+│   │   │   ├── spinner.go   # Loading indicators for async operations
 │   │   │   ├── help.go      # Help overlay
 │   │   │   └── prompt.go    # Confirmation / input prompts
 │   │   └── views/           # Full-screen view models
@@ -139,7 +141,6 @@ gh-problemas/
 │       ├── time.go          # Relative time formatting
 │       └── color.go         # Label color conversion (hex → ANSI)
 ├── config.example.yml       # Example configuration file
-├── .goreleaser.yml          # GoReleaser config (optional, alt to gh-extension-precompile)
 ├── .github/
 │   └── workflows/
 │       └── release.yml      # Cross-compile + release on tag push
@@ -158,9 +159,15 @@ gh-problemas/
 
 3. **GraphQL-first for reads, REST for mutations** — GraphQL lets us fetch exactly the fields we need in a single request (issues + labels + milestones + comments). REST is simpler for mutations (close issue, add label) where we're sending a known payload.
 
-4. **View routing in `app.go`** — the top-level Bubble Tea model acts as a router. It holds the current view and delegates `Update` and `View` calls. Views communicate upward via messages (e.g. `NavigateToDetailMsg{IssueNumber: 42}`).
+4. **View stack routing in `app.go`** — the top-level Bubble Tea model maintains a view stack for navigation history. It delegates `Update` and `View` calls to the top of the stack. Views communicate upward via messages (e.g. `NavigateToDetailMsg{IssueNumber: 42}` to push, `NavigateBackMsg` to pop). This enables natural back-navigation with `esc`/`backspace`.
 
 5. **Config-driven sections** — dashboard sections are defined in YAML, not hardcoded. Each section specifies a title, query filters, sort order, and display limit. This follows the pattern established by `gh-dash`.
+
+6. **Pagination abstraction** — cursor-based pagination is handled by a shared helper in the data layer, wrapping GraphQL `pageInfo`/`endCursor` patterns. This is needed from Phase 1 since issue lists can be large.
+
+7. **`@me` alias resolution** — the config uses `@me` as a shorthand for the authenticated user. The data layer resolves this to the actual GitHub username via `go-gh` auth context before making API calls.
+
+8. **Loading states** — all async operations (API fetches, mutations) display loading indicators. The dashboard shows a spinner during initial fetch and inline loading states during refresh. This prevents the TUI from appearing frozen.
 
 ---
 
@@ -168,6 +175,8 @@ gh-problemas/
 
 ```yaml
 # ~/.config/gh-problemas/config.yml
+
+version: 1                    # config schema version (for future migrations)
 
 defaults:
   repo: ""                    # default repo (empty = current repo from git context)
@@ -187,7 +196,7 @@ sections:
 
   - title: Needs Triage
     filters:
-      no:label: true
+      "no:label": true
       state: open
     sort: created
     limit: 20
@@ -240,13 +249,19 @@ keybindings:
 Get a working TUI that displays issues from the current repo.
 
 - [ ] Initialize Go module, install dependencies
+- [ ] Cobra root command with `--help` and `--version` flags
 - [ ] Implement `internal/data/` — fetch issues via GraphQL, parse into models
+- [ ] Cursor-based pagination helper for GraphQL queries
+- [ ] Resolve `@me` alias to authenticated username via `go-gh`
 - [ ] Implement basic Bubble Tea app shell with dashboard view
 - [ ] Render issues in a table with key columns (number, title, labels, author, age)
+- [ ] Loading spinner during initial data fetch
 - [ ] Navigation: j/k scrolling, enter to open issue detail (read-only)
 - [ ] Issue detail view: rendered markdown body, comments, metadata
+- [ ] View stack for back-navigation (detail -> dashboard)
 - [ ] Status bar with repo name, section info, keybinding hints
 - [ ] Load config from `~/.config/gh-problemas/config.yml` with sensible defaults
+- [ ] Basic error display in status bar (API failures, network errors)
 
 ### Phase 2 — Sections, Filtering & Search
 
@@ -275,7 +290,8 @@ Enable writing, not just reading.
 Scale up to power-user workflows.
 
 - [ ] Multi-select with spacebar
-- [ ] Bulk label, assign, close, milestone
+- [ ] Bulk label, assign, close, milestone (concurrent worker pool with rate limit awareness)
+- [ ] Progress indicator for bulk operations
 - [ ] Multi-repo support — configure multiple repos, unified view
 - [ ] Cross-repo search
 
@@ -287,8 +303,9 @@ Production readiness.
 - [ ] Theme support (dark/light/custom)
 - [ ] Command palette
 - [ ] Help overlay (`?`)
-- [ ] Auto-refresh with configurable interval
-- [ ] Error handling and graceful degradation (rate limits, network errors)
+- [ ] Auto-refresh with configurable interval and ETag-based conditional requests
+- [ ] Graceful rate limit handling (backoff, status bar indicator)
+- [ ] `NO_COLOR` and limited terminal support
 - [ ] GitHub Actions release workflow with `gh-extension-precompile`
 - [ ] README with screenshots, installation instructions, configuration docs
 - [ ] Add `gh-extension` topic to repository
