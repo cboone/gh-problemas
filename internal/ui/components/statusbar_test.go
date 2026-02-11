@@ -41,6 +41,21 @@ func TestStatusBar_SetError_API404(t *testing.T) {
 	}
 }
 
+func TestStatusBar_SeparatorWhenCenterSqueezed(t *testing.T) {
+	sb := NewStatusBar(lipgloss.NewStyle())
+	sb.SetRepoName("owner/repo")
+	sb.SetKeyHints([]string{"j/k: navigate", "enter: open"})
+	sb.SetInfo("some status message here")
+	// Width tight enough that left+right fill the bar, squeezing center out
+	sb.SetWidth(lipgloss.Width("owner/repo") + lipgloss.Width("info: some status message here"))
+
+	v := sb.View()
+	// Left and right should not run together without separation
+	if strings.Contains(v, "owner/repoinfo:") || strings.Contains(v, "po…info:") {
+		t.Fatalf("expected separator between left and right, got %q", v)
+	}
+}
+
 func TestStatusBar_TruncatesRightMessage(t *testing.T) {
 	sb := NewStatusBar(lipgloss.NewStyle())
 	sb.SetRepoName("owner/repository-with-very-long-name")

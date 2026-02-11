@@ -128,6 +128,12 @@ func (s *StatusBar) View() string {
 		}
 	}
 
+	// Ensure minimum separator between left and right when center is fully squeezed
+	if available == 0 && left != "" && right != "" && lipgloss.Width(left) > 1 {
+		left = truncateText(left, lipgloss.Width(left)-1)
+		available = 1
+	}
+
 	// Pad center to fill available space
 	centerPad := ""
 	if available > lipgloss.Width(center) {
