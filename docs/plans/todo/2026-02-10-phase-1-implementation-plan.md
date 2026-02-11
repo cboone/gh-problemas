@@ -97,7 +97,7 @@ The high-level plan lives at `docs/plans/todo/2026-02-10-initial-high-level-plan
 
 **`internal/ui/styles.go`** — `Styles` struct with `DefaultStyles()`: App, Header, StatusBar, SelectedRow, NormalRow, IssueNumber, IssueTitle, LabelStyle, Spinner, ErrorText, HelpKey, HelpDesc.
 
-**`internal/ui/keys.go`** — `KeyMap` struct with `DefaultKeyMap()`: Up (j/up), Down (j/down), Open (enter), Back (esc/backspace), Quit (q), ForceQuit (ctrl+c), Refresh (R), Help (?), PageUp, PageDown, GoToTop (g), GoToBottom (G), NextPage (L).
+**`internal/ui/keys.go`** — `KeyMap` struct with `DefaultKeyMap()`: Up (k/up), Down (j/down), Open (enter), Back (esc/backspace), Quit (q), ForceQuit (ctrl+c), Refresh (R), Help (?), PageUp, PageDown, GoToTop (g), GoToBottom (G), NextPage (L).
 
 **`internal/ui/components/statusbar.go`** — Status bar showing repo name, key hints, and transient messages (error/success). Methods: `SetMessage()`, `SetKeyHints()`.
 
@@ -168,15 +168,27 @@ View interface {
 - `esc`/`backspace` emits `NavigateBackMsg`; `q` in detail also emits `NavigateBackMsg` (not app quit)
 - Viewport handles j/k/pgup/pgdown scrolling natively
 
-**`tests/cli_test.md`** (Scrut):
+**`tests/scrut/phase1a-cli.md`** (Scrut):
 - `gh-problemas --help` produces expected help text
 - `gh-problemas --version` outputs version string
 
+**`tests/scrut/phase1a-navigation.md`** (Scrut):
+- Boot application in a fixture repo with deterministic mocked issue data
+- Verify dashboard list renders with loading -> populated state
+- Open selected issue, verify markdown body render, navigate back, then quit
+- Confirm returning to dashboard preserves prior list position/selection
+
+**`tests/scrut/phase1a-error-and-layout.md`** (Scrut):
+- Unauthenticated (`401`) path shows `gh auth login` guidance and non-crashing UI
+- Missing repo (`404`) path shows user-friendly error in main view + status bar
+- Resize / narrow terminal snapshot coverage for dashboard and detail layout
+- Empty issue list snapshot coverage (no-data state)
+
 ### Phase 1A Definition of Done
-- [x] User runs `gh problemas`, sees open issues in current repo
-- [x] User opens issue detail, returns to dashboard without losing list state (view stack)
-- [x] `go test ./...` passes for all packages
-- [x] Scrut covers CLI help/version; TUI flow tested via Go test helpers
+- [ ] User runs `gh problemas`, sees open issues in current repo
+- [ ] User opens issue detail, returns to dashboard without losing list state (view stack)
+- [ ] `go test ./...` passes for all packages
+- [ ] Scrut covers help/version, boot -> list -> detail -> back -> quit, error states, and layout snapshots
 
 ---
 
@@ -222,6 +234,9 @@ View interface {
 - `pagination_test.go`: initial state, sequential page requests, exhausted pages, reset
 - `comments_test.go`: mock 3 comments, empty list, error propagation
 - `user_test.go`: mock viewer response, error propagation
+- Scrut `tests/scrut/phase1b-pagination.md`: load-more flow, exhausted cursor behavior, and status text updates
+- Scrut `tests/scrut/phase1b-comments.md`: comment thread rendering with markdown + long thread viewport behavior
+- Scrut `tests/scrut/phase1b-network-errors.md`: network/API failure during pagination or comments fetch with retry messaging
 
 ---
 
@@ -252,12 +267,14 @@ View interface {
 - Partial override: specified values used, others default
 - Invalid YAML: error returned
 - XDG_CONFIG_HOME respected; fallback to `~/.config/gh-problemas`
+- Scrut `tests/scrut/phase1b-config.md`: startup with no config, then startup with custom `page_size` and `date_format` to verify visible behavior
 
 ### Phase 1B Definition of Done
-- [x] Large issue lists handled via cursor-based pagination with "load more"
-- [x] Detail view shows comments and metadata
-- [x] Zero-config works (no config file needed, all defaults applied)
-- [x] `go test ./...` passes for all packages
+- [ ] Large issue lists handled via cursor-based pagination with "load more"
+- [ ] Detail view shows comments and metadata
+- [ ] Zero-config works (no config file needed, all defaults applied)
+- [ ] `go test ./...` passes for all packages
+- [ ] Scrut covers pagination, comments rendering, config defaults/overrides, and network error states
 
 ---
 
@@ -278,6 +295,16 @@ HTTP status codes get user-friendly messages:
 
 Every data client accepts the `Querier` interface, not `*api.GraphQLClient` directly. Tests use a `mockQuerier` that returns canned responses via JSON marshal/unmarshal round-trip.
 
+## Cross-Cutting: Scrut Coverage Policy
+
+Phase 1 must include both smoke and regression Scrut scenarios; do not treat Scrut as CLI-only checks.
+
+- Smoke: CLI help/version and dashboard -> detail -> back -> quit loop
+- Error: 401/403/404 and network failure UX for list/detail/pagination paths
+- Layout: narrow-width and resize snapshots for dashboard/detail
+- Data shape: empty list, long markdown body, and long comment thread rendering
+- Config: no-config defaults and visible behavior from config overrides
+
 ## Verification
 
 After all milestones:
@@ -286,4 +313,6 @@ After all milestones:
 3. `go vet ./...` — no issues
 4. Manual: `go run . --help`, `go run . --version`
 5. Manual in a real repo with `gh` auth: `go run .` shows issues, enter opens detail, esc returns, q quits
-6. Scrut: `scrut tests/` passes
+6. Scrut smoke: `scrut tests/scrut/phase1a-*.md` passes
+7. Scrut Phase 1B regression: `scrut tests/scrut/phase1b-*.md` passes
+8. Full Scrut suite: `scrut tests/scrut/` passes

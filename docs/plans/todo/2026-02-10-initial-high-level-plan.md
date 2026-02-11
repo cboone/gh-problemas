@@ -180,7 +180,7 @@ gh-problemas/
 
 5. **Config-driven sections** — dashboard sections are defined in YAML, not hardcoded. Each section specifies a title, query filters, sort order, and display limit. This follows the pattern established by `gh-dash`.
 
-6. **Pagination abstraction** — cursor-based pagination is handled by a shared helper in the data layer, wrapping GraphQL `pageInfo`/`endCursor` patterns. This is needed from Phase 1 since issue lists can be large.
+6. **Pagination abstraction** — cursor-based pagination is handled by a shared helper in the data layer, wrapping GraphQL `pageInfo`/`endCursor` patterns. Baseline list/detail shipping happens in Phase 1A; full load-more behavior and paginator helper are delivered in Phase 1B.
 
 7. **`@me` alias resolution** — the config uses `@me` as a shorthand for the authenticated user. The data layer resolves this to the actual GitHub username via `go-gh` auth context before making API calls.
 
@@ -278,7 +278,7 @@ Definition of done:
 - [ ] A user can run `gh problemas` and see open issues in the current repo
 - [ ] A user can open an issue and return to the dashboard without losing list state
 - [ ] `go test ./...` passes for implemented packages
-- [ ] Scrut scenario covers boot -> list -> detail -> back -> quit
+- [ ] Scrut coverage includes CLI help/version, boot -> list -> detail -> back -> quit, error states, and narrow-width layout snapshots
 
 ### Phase 1B — Detail Depth, Pagination & Config Baseline
 
@@ -294,7 +294,7 @@ Definition of done:
 
 - [ ] Lists and detail views handle repositories with large issue counts reliably
 - [ ] Config defaults work with zero user setup
-- [ ] `go test ./...` and targeted Scrut scenarios for long lists and error states pass
+- [ ] `go test ./...` and targeted Scrut scenarios for pagination, comments, config behavior, and error states pass
 
 ### Phase 2 — Sections, Filtering & Search
 
@@ -386,6 +386,7 @@ Quality gates apply to every phase and are expanded in each phase's detailed imp
   - Scenario-based terminal interaction tests for core user journeys.
   - Snapshot/regression checks for key views (dashboard, detail, prompts, help).
   - Cross-terminal profile checks for color/width/compatibility behavior.
+  - Phase 1 minimum bar: cover happy path, auth/repo/network failure paths, pagination flow, and config-default behavior; do not reduce Scrut to CLI flag checks.
 
 - **CI expectations**
   - Run `go test ./...` and Scrut suite in CI for every PR.
