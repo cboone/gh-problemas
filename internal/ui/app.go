@@ -37,7 +37,6 @@ type IssuesLoadedMsg struct {
 // IssuesPageLoadedMsg carries the result of loading an additional page of issues.
 type IssuesPageLoadedMsg struct {
 	Result data.IssueListResult
-	Append bool
 	Err    error
 }
 

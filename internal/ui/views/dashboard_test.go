@@ -94,13 +94,16 @@ func TestDashboard_EnterProducesNavigateMsg(t *testing.T) {
 
 	// Press enter
 	_, cmd := dv.Update(tea.KeyMsg{Type: tea.KeyEnter})
-	if cmd != nil {
-		msg := cmd()
-		if nav, ok := msg.(ui.NavigateToDetailMsg); ok {
-			if nav.IssueNumber != 42 {
-				t.Errorf("expected issue number 42, got %d", nav.IssueNumber)
-			}
-		}
+	if cmd == nil {
+		t.Fatal("expected command from Enter key, got nil")
+	}
+	msg := cmd()
+	nav, ok := msg.(ui.NavigateToDetailMsg)
+	if !ok {
+		t.Fatalf("expected NavigateToDetailMsg, got %T", msg)
+	}
+	if nav.IssueNumber != 42 {
+		t.Errorf("expected issue number 42, got %d", nav.IssueNumber)
 	}
 }
 

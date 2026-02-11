@@ -235,7 +235,7 @@ func (d *DashboardView) Update(msg tea.Msg) (ui.View, tea.Cmd) {
 			}
 			return d, tea.Batch(spinCmd, statusCmd, fetchCmd)
 		}
-		if key.Matches(msg, d.keys.NextPage) && !d.loadingMore {
+		if key.Matches(msg, d.keys.NextPage) && !d.loading && !d.loadingMore {
 			req := d.paginator.NextPageRequest()
 			if req != nil {
 				d.loadingMore = true
@@ -250,7 +250,7 @@ func (d *DashboardView) Update(msg tea.Msg) (ui.View, tea.Cmd) {
 						First:  first,
 						After:  after,
 					})
-					return ui.IssuesPageLoadedMsg{Result: result, Append: true, Err: err}
+					return ui.IssuesPageLoadedMsg{Result: result, Err: err}
 				}
 				return d, tea.Batch(spinCmd, statusCmd, fetchCmd)
 			}

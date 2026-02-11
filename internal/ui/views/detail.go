@@ -90,6 +90,9 @@ func (d *DetailView) Update(msg tea.Msg) (ui.View, tea.Cmd) {
 		d.height = msg.Height - 1
 		d.viewport.Width = msg.Width
 		d.viewport.Height = d.height
+		if !d.loading && d.errMsg == "" && d.issue != nil {
+			d.renderContent()
+		}
 		return d, nil
 
 	case ui.IssueDetailLoadedMsg:
