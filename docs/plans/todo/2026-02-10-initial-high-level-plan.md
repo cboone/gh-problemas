@@ -12,6 +12,22 @@ gh problemas
 
 **gh-problemas** fills a gap in the `gh` extension ecosystem: a dedicated, keyboard-driven TUI for *issue management*. While `gh-dash` is excellent for PR dashboards with some issue visibility, there is no focused tool for issue triage, exploration, and lifecycle management from the terminal. gh-problemas is that tool.
 
+## Scope & Planning Model
+
+This document is intentionally a high-level roadmap.
+
+- Each phase must get its own detailed implementation plan before execution (scope, milestones, dependencies, acceptance checks, and rollout notes).
+- Detailed phase plans should live under `docs/plans/` and reference this roadmap as the source of truth for sequencing.
+- If a detailed phase plan conflicts with this document, update this high-level plan first, then the detailed plan.
+
+## MVP Boundary (Phase 1A)
+
+To keep delivery fast and reduce risk, the first shippable milestone is deliberately narrow:
+
+- In scope: scaffolding, authenticated GitHub read path, dashboard list, basic keyboard navigation, open detail with rendered body, loading + error states.
+- Out of scope (deferred): comment threads, timeline events, label/milestone management views, mutations, multi-repo, command palette, and advanced search.
+- Success condition: users can install and run `gh problemas` in a repo and triage open issues read-only without leaving the terminal.
+
 ---
 
 ## Tech Stack
@@ -26,6 +42,7 @@ gh problemas
 | GitHub API | **go-gh v2** (cli/go-gh) | Inherits `gh` auth, REST + GraphQL clients, repo context |
 | CLI framework | **Cobra** | Subcommands, flags, help generation |
 | Config | **Viper** + YAML | User-configurable dashboards, keybindings, themes |
+| Testing | **Go test** + **Scrut** | Unit/integration coverage plus terminal flow and visual regression checks |
 | CI/CD | **gh-extension-precompile** action | Automated cross-platform releases, purpose-built for gh extensions |
 
 ---
@@ -244,71 +261,155 @@ keybindings:
 
 ## Implementation Phases
 
-### Phase 1 — Scaffold & Read-Only Dashboard
+### Phase 1A — Scaffold & MVP Read-Only Dashboard
 
-Get a working TUI that displays issues from the current repo.
+Ship a usable read-only issue triage loop quickly.
 
-- [ ] Initialize Go module, install dependencies
-- [ ] Cobra root command with `--help` and `--version` flags
-- [ ] Implement `internal/data/` — fetch issues via GraphQL, parse into models
-- [ ] Cursor-based pagination helper for GraphQL queries
+- [ ] Initialize Go module and core dependencies
+- [ ] Cobra root command with `--help` and `--version`
+- [ ] Implement `internal/data/` GraphQL issue listing for current repo
+- [ ] Bubble Tea app shell + dashboard list/table view
+- [ ] Loading and error states (status bar + spinner)
+- [ ] Keyboard navigation (`j`/`k`, open detail, back)
+- [ ] Detail view with rendered markdown issue body only
+
+Definition of done:
+
+- [ ] A user can run `gh problemas` and see open issues in the current repo
+- [ ] A user can open an issue and return to the dashboard without losing list state
+- [ ] `go test ./...` passes for implemented packages
+- [ ] Scrut scenario covers boot -> list -> detail -> back -> quit
+
+### Phase 1B — Detail Depth, Pagination & Config Baseline
+
+Round out the read-only foundation before feature expansion.
+
+- [ ] Cursor-based pagination helper for GraphQL reads
 - [ ] Resolve `@me` alias to authenticated username via `go-gh`
-- [ ] Implement basic Bubble Tea app shell with dashboard view
-- [ ] Render issues in a table with key columns (number, title, labels, author, age)
-- [ ] Loading spinner during initial data fetch
-- [ ] Navigation: j/k scrolling, enter to open issue detail (read-only)
-- [ ] Issue detail view: rendered markdown body, comments, metadata
-- [ ] View stack for back-navigation (detail -> dashboard)
-- [ ] Status bar with repo name, section info, keybinding hints
-- [ ] Load config from `~/.config/gh-problemas/config.yml` with sensible defaults
-- [ ] Basic error display in status bar (API failures, network errors)
+- [ ] Add comments and key metadata to detail view
+- [ ] Status bar refinements (repo context, key hints, API/network failures)
+- [ ] Load config from `~/.config/gh-problemas/config.yml` with defaults
+
+Definition of done:
+
+- [ ] Lists and detail views handle repositories with large issue counts reliably
+- [ ] Config defaults work with zero user setup
+- [ ] `go test ./...` and targeted Scrut scenarios for long lists and error states pass
 
 ### Phase 2 — Sections, Filtering & Search
 
-Make the dashboard powerful and configurable.
+Make the dashboard configurable and high-signal.
 
 - [ ] Config-driven sections with independent filters and sort orders
 - [ ] Tab/shift-tab section switching
 - [ ] Filter bar component with live filtering
 - [ ] Fuzzy search across visible issues (client-side)
-- [ ] Server-side search via GitHub search API
+- [ ] Server-side search via GitHub Search API
 - [ ] Saved filters in config
+
+Definition of done:
+
+- [ ] Users can move between sections and apply filters without restarting
+- [ ] Search behavior is documented and predictable (client vs server modes)
+- [ ] `go test ./...` plus Scrut navigation/search scenarios pass
 
 ### Phase 3 — Issue Mutations
 
-Enable writing, not just reading.
+Enable write workflows for issue lifecycle management.
 
-- [ ] Close / reopen issues
-- [ ] Add / remove labels (interactive picker)
-- [ ] Assign / unassign users (interactive picker)
+- [ ] Close/reopen issues
+- [ ] Add/remove labels (interactive picker)
+- [ ] Assign/unassign users (interactive picker)
 - [ ] Set milestone
 - [ ] Add comments (inline text area or `$EDITOR` handoff)
 - [ ] Create new issues (template selection, form mode, editor handoff, preview)
 
+Definition of done:
+
+- [ ] Mutations surface clear success/error feedback and preserve UI responsiveness
+- [ ] Permission and validation failures are handled gracefully
+- [ ] `go test ./...` covers mutation services; Scrut covers at least one full write flow
+
 ### Phase 4 — Bulk Operations & Multi-Repo
 
-Scale up to power-user workflows.
+Scale to power-user workflows while protecting reliability.
 
 - [ ] Multi-select with spacebar
-- [ ] Bulk label, assign, close, milestone (concurrent worker pool with rate limit awareness)
+- [ ] Bulk label/assign/close/milestone (worker pool with rate-limit awareness)
 - [ ] Progress indicator for bulk operations
-- [ ] Multi-repo support — configure multiple repos, unified view
+- [ ] Multi-repo support (configured repos + unified view)
 - [ ] Cross-repo search
 
-### Phase 5 — Polish & Release
+Definition of done:
 
-Production readiness.
+- [ ] Bulk actions report partial failures clearly and remain cancellable
+- [ ] Multi-repo mode enforces documented limits (repo count, refresh intervals)
+- [ ] `go test ./...` and Scrut bulk/multi-repo scenarios pass
+
+### Phase 5 — Polish, CLI Niceties & Release
+
+Deliver production-grade UX, packaging, and documentation.
 
 - [ ] Customizable keybindings (loaded from config)
 - [ ] Theme support (dark/light/custom)
 - [ ] Command palette
 - [ ] Help overlay (`?`)
-- [ ] Auto-refresh with configurable interval and ETag-based conditional requests
-- [ ] Graceful rate limit handling (backoff, status bar indicator)
+- [ ] Auto-refresh with configurable interval + ETag-based conditional requests
+- [ ] Graceful rate-limit handling (backoff + status indicator)
 - [ ] `NO_COLOR` and limited terminal support
+- [ ] Shell completions (`bash`, `zsh`, `fish`, `powershell`) and install instructions
+- [ ] Man pages for root and subcommands
+- [ ] README with screenshots, install, configuration, and usage guides
+- [ ] Additional docs: keybindings reference, troubleshooting, architecture overview, release process
 - [ ] GitHub Actions release workflow with `gh-extension-precompile`
-- [ ] README with screenshots, installation instructions, configuration docs
 - [ ] Add `gh-extension` topic to repository
+
+Definition of done:
+
+- [ ] CLI help, completions, and man pages are generated from command definitions and versioned
+- [ ] Docs are sufficient for first-time setup, daily usage, and debugging
+- [ ] Release artifacts are reproducible across supported platforms
+- [ ] `go test ./...`, Scrut regression suite, and release workflow checks pass
+
+---
+
+## Testing & Quality Strategy
+
+Quality gates apply to every phase and are expanded in each phase's detailed implementation plan.
+
+- **Go tests**
+  - Unit tests for config parsing/validation, query mapping, formatting utilities, and keybinding parsing.
+  - Integration-style tests for data clients with mocked GitHub responses and pagination behavior.
+  - Contract tests for mutation payloads and error mapping where feasible.
+
+- **Scrut tests**
+  - Scenario-based terminal interaction tests for core user journeys.
+  - Snapshot/regression checks for key views (dashboard, detail, prompts, help).
+  - Cross-terminal profile checks for color/width/compatibility behavior.
+
+- **CI expectations**
+  - Run `go test ./...` and Scrut suite in CI for every PR.
+  - Keep fast smoke scenarios required on every commit; run full Scrut regression on PR and release workflows.
+  - Publish test artifacts (logs/snapshots) for failed runs to speed diagnosis.
+
+- **Manual validation**
+  - Lightweight pre-release checklist: install extension, auth reuse, startup in a real repo, basic read flow, one write flow, and docs verification.
+
+---
+
+## Risks & Mitigations
+
+- **API rate limits**
+  - Mitigation: cache where reasonable, enforce refresh floors, surface remaining quota, and back off before hard limit exhaustion.
+
+- **GraphQL query complexity growth**
+  - Mitigation: keep list queries minimal, lazy-load expensive detail data, and split queries by view responsibility.
+
+- **Terminal compatibility variance**
+  - Mitigation: test against width/color/`NO_COLOR` permutations and provide graceful fallback rendering.
+
+- **Scope creep during implementation**
+  - Mitigation: enforce phase-level definitions of done and require detailed per-phase plans before build work starts.
 
 ---
 
