@@ -56,6 +56,29 @@ func TestStatusBar_SeparatorWhenCenterSqueezed(t *testing.T) {
 	}
 }
 
+func TestStatusBar_SeparatorWhenCenterTruncated(t *testing.T) {
+	sb := NewStatusBar(lipgloss.NewStyle())
+	sb.SetRepoName("owner/repo")
+	sb.SetKeyHints([]string{"j/k: navigate", "enter: open"})
+	sb.SetInfo("api: msg")
+	// Width allows some center content but requires truncation
+	sb.SetWidth(lipgloss.Width("owner/repo") + lipgloss.Width("info: api: msg") + 8)
+
+	v := sb.View()
+	left := "owner/repo"
+	right := "info: api: msg"
+	// Segments should not be directly adjacent to truncated center
+	if strings.Contains(v, left+"j") || strings.Contains(v, left+"…") {
+		t.Fatalf("expected space separator between left and truncated center, got %q", v)
+	}
+	if idx := strings.Index(v, right); idx > 0 {
+		before := v[idx-1 : idx]
+		if before != " " {
+			t.Fatalf("expected space before right segment, got %q at position %d in %q", before, idx-1, v)
+		}
+	}
+}
+
 func TestStatusBar_TruncatesRightMessage(t *testing.T) {
 	sb := NewStatusBar(lipgloss.NewStyle())
 	sb.SetRepoName("owner/repository-with-very-long-name")

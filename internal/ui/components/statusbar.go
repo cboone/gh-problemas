@@ -142,7 +142,21 @@ func (s *StatusBar) View() string {
 		rightPad := padding - leftPad
 		centerPad = strings.Repeat(" ", leftPad) + center + strings.Repeat(" ", rightPad)
 	} else {
-		centerPad = truncateText(center, available)
+		// Reserve separator spaces to prevent segments running together
+		sepLeft := 0
+		sepRight := 0
+		if left != "" {
+			sepLeft = 1
+		}
+		if right != "" {
+			sepRight = 1
+		}
+		contentSpace := available - sepLeft - sepRight
+		if contentSpace > 0 {
+			centerPad = strings.Repeat(" ", sepLeft) + truncateText(center, contentSpace) + strings.Repeat(" ", sepRight)
+		} else {
+			centerPad = strings.Repeat(" ", available)
+		}
 	}
 
 	bar := left + centerPad + right
