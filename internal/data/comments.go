@@ -84,8 +84,12 @@ type listCommentsResponse struct {
 func (r *listCommentsResponse) toResult() CommentListResult {
 	comments := make([]Comment, len(r.Repository.Issue.Comments.Nodes))
 	for i, n := range r.Repository.Issue.Comments.Nodes {
+		author := n.Author.Login
+		if author == "" {
+			author = "[deleted]"
+		}
 		comments[i] = Comment{
-			Author:    n.Author.Login,
+			Author:    author,
 			Body:      n.Body,
 			CreatedAt: n.CreatedAt,
 			UpdatedAt: n.UpdatedAt,

@@ -68,19 +68,19 @@ func (s *StatusBar) SetError(err error) {
 		return
 	}
 
-	if strings.Contains(text, "401") {
+	if strings.Contains(text, "HTTP 401") || strings.Contains(text, "401 Unauthorized") {
 		s.messagePrefix = "api"
 		s.message = "Run gh auth login to re-authenticate"
 		return
 	}
 
-	if strings.Contains(text, "403") {
+	if strings.Contains(text, "HTTP 403") || strings.Contains(text, "403 Forbidden") {
 		s.messagePrefix = "api"
 		s.message = "Check your permissions for this repository"
 		return
 	}
 
-	if strings.Contains(text, "404") {
+	if strings.Contains(text, "HTTP 404") || strings.Contains(text, "404 Not Found") {
 		s.messagePrefix = "api"
 		s.message = "Repository not found"
 		return

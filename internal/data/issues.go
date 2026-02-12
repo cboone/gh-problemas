@@ -192,13 +192,18 @@ func (n *issueNode) toIssue() Issue {
 		milestone = n.Milestone.Title
 	}
 
+	author := n.Author.Login
+	if author == "" {
+		author = "[deleted]"
+	}
+
 	return Issue{
 		Number:        n.Number,
 		Title:         n.Title,
 		State:         n.State,
 		CreatedAt:     n.CreatedAt,
 		UpdatedAt:     n.UpdatedAt,
-		Author:        n.Author.Login,
+		Author:        author,
 		Labels:        labels,
 		Assignees:     assignees,
 		Milestone:     milestone,
