@@ -8,6 +8,10 @@ func RenderMarkdown(content string, width int) (string, error) {
 		return "", nil
 	}
 
+	if width < 1 {
+		width = 1
+	}
+
 	r, err := glamour.NewTermRenderer(
 		glamour.WithAutoStyle(),
 		glamour.WithWordWrap(width),

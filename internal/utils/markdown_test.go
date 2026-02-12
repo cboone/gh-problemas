@@ -28,6 +28,18 @@ func TestRenderMarkdown_Empty(t *testing.T) {
 	}
 }
 
+func TestRenderMarkdown_ZeroAndNegativeWidth(t *testing.T) {
+	for _, w := range []int{0, -1, -100} {
+		out, err := RenderMarkdown("hello", w)
+		if err != nil {
+			t.Fatalf("width %d: unexpected error: %v", w, err)
+		}
+		if !strings.Contains(out, "hello") {
+			t.Errorf("width %d: expected output to contain 'hello', got: %q", w, out)
+		}
+	}
+}
+
 func TestRenderMarkdown_WidthWrapping(t *testing.T) {
 	long := "This is a very long line of text that should be wrapped when rendered with a narrow width setting to test word wrapping behavior."
 	out, err := RenderMarkdown(long, 40)
