@@ -36,14 +36,18 @@ func TestLoad_NoConfigFile(t *testing.T) {
 func TestLoad_PartialOverride(t *testing.T) {
 	tmp := t.TempDir()
 	configDir := filepath.Join(tmp, "gh-problemas")
-	os.MkdirAll(configDir, 0o755)
+	if err := os.MkdirAll(configDir, 0o755); err != nil {
+		t.Fatalf("failed to create config dir: %v", err)
+	}
 
 	configContent := `version: 1
 defaults:
   page_size: 25
   date_format: "2006-01-02"
 `
-	os.WriteFile(filepath.Join(configDir, "config.yaml"), []byte(configContent), 0o644)
+	if err := os.WriteFile(filepath.Join(configDir, "config.yaml"), []byte(configContent), 0o644); err != nil {
+		t.Fatalf("failed to write config file: %v", err)
+	}
 	t.Setenv("XDG_CONFIG_HOME", tmp)
 
 	cfg, err := Load()
@@ -71,9 +75,13 @@ defaults:
 func TestLoad_InvalidYAML(t *testing.T) {
 	tmp := t.TempDir()
 	configDir := filepath.Join(tmp, "gh-problemas")
-	os.MkdirAll(configDir, 0o755)
+	if err := os.MkdirAll(configDir, 0o755); err != nil {
+		t.Fatalf("failed to create config dir: %v", err)
+	}
 
-	os.WriteFile(filepath.Join(configDir, "config.yaml"), []byte("{{invalid yaml"), 0o644)
+	if err := os.WriteFile(filepath.Join(configDir, "config.yaml"), []byte("{{invalid yaml"), 0o644); err != nil {
+		t.Fatalf("failed to write config file: %v", err)
+	}
 	t.Setenv("XDG_CONFIG_HOME", tmp)
 
 	_, err := Load()
@@ -85,11 +93,15 @@ func TestLoad_InvalidYAML(t *testing.T) {
 func TestLoad_XDGConfigHome(t *testing.T) {
 	tmp := t.TempDir()
 	configDir := filepath.Join(tmp, "gh-problemas")
-	os.MkdirAll(configDir, 0o755)
+	if err := os.MkdirAll(configDir, 0o755); err != nil {
+		t.Fatalf("failed to create config dir: %v", err)
+	}
 
 	configContent := `theme: light
 `
-	os.WriteFile(filepath.Join(configDir, "config.yaml"), []byte(configContent), 0o644)
+	if err := os.WriteFile(filepath.Join(configDir, "config.yaml"), []byte(configContent), 0o644); err != nil {
+		t.Fatalf("failed to write config file: %v", err)
+	}
 	t.Setenv("XDG_CONFIG_HOME", tmp)
 
 	cfg, err := Load()

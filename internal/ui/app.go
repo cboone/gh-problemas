@@ -209,6 +209,7 @@ func (a *App) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if v := a.CurrentView(); v != nil {
 			updated, cmd := v.Update(msg)
 			a.viewStack[len(a.viewStack)-1] = updated
+			a.updateKeyHints()
 			return a, cmd
 		}
 		return a, nil
@@ -272,6 +273,7 @@ func (a *App) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	if v := a.CurrentView(); v != nil {
 		updated, cmd := v.Update(msg)
 		a.viewStack[len(a.viewStack)-1] = updated
+		a.updateKeyHints()
 		return a, cmd
 	}
 
