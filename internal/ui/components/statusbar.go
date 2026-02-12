@@ -173,14 +173,30 @@ func truncateText(text string, max int) string {
 	if lipgloss.Width(text) <= max {
 		return text
 	}
-	if max == 1 {
-		return "…"
+
+	ellipsis := "…"
+	ellipsisWidth := lipgloss.Width(ellipsis)
+	target := max - ellipsisWidth
+	if target <= 0 {
+		return ellipsis
 	}
-	runes := []rune(text)
-	if len(runes) >= max {
-		return string(runes[:max-1]) + "…"
+
+	width := 0
+	end := 0
+	for i, r := range text {
+		rw := lipgloss.Width(string(r))
+		if width+rw > target {
+			break
+		}
+		width += rw
+		end = i + len(string(r))
 	}
-	return text
+
+	if end == 0 {
+		return ellipsis
+	}
+
+	return text[:end] + ellipsis
 }
 
 func isNetworkError(errText string) bool {

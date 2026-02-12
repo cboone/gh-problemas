@@ -38,7 +38,6 @@ func Load() (*Config, error) {
 	// Config path
 	configDir := configDirectory()
 	v.SetConfigName("config")
-	v.SetConfigType("yaml")
 	v.AddConfigPath(configDir)
 
 	// Read config file; ignore not-found

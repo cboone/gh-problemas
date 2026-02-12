@@ -242,7 +242,7 @@ View interface {
 
 ## Milestone 8 — Configuration Layer (Phase 1B)
 
-**Goal:** Config loading from `~/.config/gh-problemas/config.yml` with sensible defaults. Phase 1B acceptance complete.
+**Goal:** Config loading from `~/.config/gh-problemas/config.yaml` with sensible defaults. Phase 1B acceptance complete.
 
 ### Files to create
 

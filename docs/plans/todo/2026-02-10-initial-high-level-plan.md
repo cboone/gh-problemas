@@ -191,7 +191,7 @@ gh-problemas/
 ## Configuration
 
 ```yaml
-# ~/.config/gh-problemas/config.yml
+# ~/.config/gh-problemas/config.yaml
 
 version: 1                    # config schema version (for future migrations)
 
@@ -288,7 +288,7 @@ Round out the read-only foundation before feature expansion.
 - [x] Resolve `@me` alias to authenticated username via `go-gh`
 - [x] Add comments and key metadata to detail view
 - [x] Status bar refinements (repo context, key hints, API/network failures)
-- [x] Load config from `~/.config/gh-problemas/config.yml` with defaults
+- [x] Load config from `~/.config/gh-problemas/config.yaml` with defaults
 
 Definition of done:
 

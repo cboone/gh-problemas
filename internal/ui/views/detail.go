@@ -104,10 +104,13 @@ func (d *DetailView) Update(msg tea.Msg) (ui.View, tea.Cmd) {
 		}
 		d.errMsg = ""
 		d.issue = &msg.Issue
+		// Mark loading before render so the UI shows "Loading comments..." immediately
+		if d.commentClient != nil {
+			d.loadingComments = true
+		}
 		d.renderContent()
 		// Fetch comments if we have a comment client
 		if d.commentClient != nil {
-			d.loadingComments = true
 			cc := d.commentClient
 			number := d.issueNumber
 			statusCmd := ui.StatusLoading("Loading comments...")
