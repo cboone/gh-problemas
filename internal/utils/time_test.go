@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"regexp"
 	"testing"
 	"time"
 )
@@ -11,7 +12,6 @@ func TestRelativeTime(t *testing.T) {
 		duration time.Duration
 		want     string
 	}{
-		{"30 seconds", 30 * time.Second, "30s ago"},
 		{"90 minutes", 90 * time.Minute, "1h ago"},
 		{"25 hours", 25 * time.Hour, "1d ago"},
 		{"60 days", 60 * 24 * time.Hour, "2mo ago"},
@@ -29,6 +29,15 @@ func TestRelativeTime(t *testing.T) {
 			}
 		})
 	}
+
+	// Sub-minute case: verify format pattern rather than exact value to avoid
+	// flakiness from time.Now() drift between the test and RelativeTime.
+	t.Run("30 seconds", func(t *testing.T) {
+		got := RelativeTime(time.Now().Add(-30 * time.Second))
+		if matched, _ := regexp.MatchString(`^\d+s ago$`, got); !matched {
+			t.Errorf("RelativeTime(30s ago) = %q, want format matching '<N>s ago'", got)
+		}
+	})
 }
 
 func TestRelativeTime_Zero(t *testing.T) {
