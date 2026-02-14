@@ -4,8 +4,8 @@ import (
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-	"github.com/hpg/gh-problemas/internal/data"
-	"github.com/hpg/gh-problemas/internal/ui/components"
+	"github.com/cboone/gh-problemas/internal/data"
+	"github.com/cboone/gh-problemas/internal/ui/components"
 )
 
 // View is the interface for a screen in the view stack.

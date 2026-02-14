@@ -7,10 +7,10 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/cli/go-gh/v2/pkg/api"
 	"github.com/cli/go-gh/v2/pkg/repository"
-	"github.com/hpg/gh-problemas/internal/config"
-	"github.com/hpg/gh-problemas/internal/data"
-	"github.com/hpg/gh-problemas/internal/ui"
-	"github.com/hpg/gh-problemas/internal/ui/views"
+	"github.com/cboone/gh-problemas/internal/config"
+	"github.com/cboone/gh-problemas/internal/data"
+	"github.com/cboone/gh-problemas/internal/ui"
+	"github.com/cboone/gh-problemas/internal/ui/views"
 	"github.com/spf13/cobra"
 )
 
