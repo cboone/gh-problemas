@@ -16,7 +16,7 @@ The high-level plan lives at `docs/plans/todo/2026-02-10-initial-high-level-plan
 
 ### Files to create
 
-**`go.mod`** — `go mod init github.com/hpg/gh-problemas` then `go get`:
+**`go.mod`** — `go mod init github.com/cboone/gh-problemas` then `go get`:
 - `github.com/cli/go-gh/v2`
 - `github.com/charmbracelet/bubbletea`
 - `github.com/charmbracelet/bubbles`

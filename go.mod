@@ -1,4 +1,4 @@
-module github.com/hpg/gh-problemas
+module github.com/cboone/gh-problemas
 
 go 1.25.7
 

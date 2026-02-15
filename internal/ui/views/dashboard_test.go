@@ -7,8 +7,8 @@ import (
 	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/hpg/gh-problemas/internal/data"
-	"github.com/hpg/gh-problemas/internal/ui"
+	"github.com/cboone/gh-problemas/internal/data"
+	"github.com/cboone/gh-problemas/internal/ui"
 )
 
 type mockQuerier struct {

@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"github.com/hpg/gh-problemas/cmd"
+	"github.com/cboone/gh-problemas/cmd"
 )
 
 func main() {

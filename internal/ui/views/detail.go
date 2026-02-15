@@ -8,10 +8,10 @@ import (
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-	"github.com/hpg/gh-problemas/internal/data"
-	"github.com/hpg/gh-problemas/internal/ui"
-	"github.com/hpg/gh-problemas/internal/ui/components"
-	"github.com/hpg/gh-problemas/internal/utils"
+	"github.com/cboone/gh-problemas/internal/data"
+	"github.com/cboone/gh-problemas/internal/ui"
+	"github.com/cboone/gh-problemas/internal/ui/components"
+	"github.com/cboone/gh-problemas/internal/utils"
 )
 
 // DetailView shows a single issue with its rendered markdown body and comments.
