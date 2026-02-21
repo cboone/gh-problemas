@@ -118,7 +118,7 @@ type listIssuesResponse struct {
 	Repository struct {
 		Issues struct {
 			PageInfo graphqlPageInfo `json:"pageInfo"`
-			Nodes    []issueNode    `json:"nodes"`
+			Nodes    []issueNode     `json:"nodes"`
 		} `json:"issues"`
 	} `json:"repository"`
 }
@@ -130,11 +130,8 @@ func (r *listIssuesResponse) toResult() IssueListResult {
 	}
 	pi := r.Repository.Issues.PageInfo
 	return IssueListResult{
-		Issues: issues,
-		PageInfo: PageInfo{
-			HasNextPage: pi.HasNextPage,
-			EndCursor:   pi.EndCursor,
-		},
+		Issues:   issues,
+		PageInfo: PageInfo(pi),
 	}
 }
 

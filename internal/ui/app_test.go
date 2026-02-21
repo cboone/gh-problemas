@@ -11,10 +11,10 @@ type mockView struct {
 	name string
 }
 
-func (v *mockView) Init() tea.Cmd            { return nil }
+func (v *mockView) Init() tea.Cmd                  { return nil }
 func (v *mockView) Update(tea.Msg) (View, tea.Cmd) { return v, nil }
-func (v *mockView) View() string             { return v.name }
-func (v *mockView) KeyHints() []string       { return []string{v.name} }
+func (v *mockView) View() string                   { return v.name }
+func (v *mockView) KeyHints() []string             { return []string{v.name} }
 
 func TestPushPopViewStack(t *testing.T) {
 	app := NewApp(nil, "owner/repo", nil)

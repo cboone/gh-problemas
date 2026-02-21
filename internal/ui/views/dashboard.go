@@ -5,14 +5,14 @@ import (
 	"io"
 	"strings"
 
-	"github.com/charmbracelet/bubbles/key"
-	"github.com/charmbracelet/bubbles/list"
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
 	"github.com/cboone/gh-problemas/internal/data"
 	"github.com/cboone/gh-problemas/internal/ui"
 	"github.com/cboone/gh-problemas/internal/ui/components"
 	"github.com/cboone/gh-problemas/internal/utils"
+	"github.com/charmbracelet/bubbles/key"
+	"github.com/charmbracelet/bubbles/list"
+	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 )
 
 // issueItem wraps a data.Issue for the list component.
@@ -93,7 +93,7 @@ func (d issueDelegate) Render(w io.Writer, m list.Model, index int, item list.It
 		cursor = "> "
 	}
 
-	fmt.Fprintf(w, "%s%s\n%s%s", cursor, titleLine, "  ", metaStyle.Render(meta))
+	_, _ = fmt.Fprintf(w, "%s%s\n%s%s", cursor, titleLine, "  ", metaStyle.Render(meta))
 }
 
 // DashboardView is the main view showing open issues.

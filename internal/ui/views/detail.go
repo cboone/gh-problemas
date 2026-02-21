@@ -4,14 +4,14 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/charmbracelet/bubbles/key"
-	"github.com/charmbracelet/bubbles/viewport"
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
 	"github.com/cboone/gh-problemas/internal/data"
 	"github.com/cboone/gh-problemas/internal/ui"
 	"github.com/cboone/gh-problemas/internal/ui/components"
 	"github.com/cboone/gh-problemas/internal/utils"
+	"github.com/charmbracelet/bubbles/key"
+	"github.com/charmbracelet/bubbles/viewport"
+	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 )
 
 // DetailView shows a single issue with its rendered markdown body and comments.

@@ -4,13 +4,13 @@ import (
 	"fmt"
 	"strings"
 
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/cli/go-gh/v2/pkg/api"
-	"github.com/cli/go-gh/v2/pkg/repository"
 	"github.com/cboone/gh-problemas/internal/config"
 	"github.com/cboone/gh-problemas/internal/data"
 	"github.com/cboone/gh-problemas/internal/ui"
 	"github.com/cboone/gh-problemas/internal/ui/views"
+	tea "github.com/charmbracelet/bubbletea"
+	"github.com/cli/go-gh/v2/pkg/api"
+	"github.com/cli/go-gh/v2/pkg/repository"
 	"github.com/spf13/cobra"
 )
 
@@ -75,7 +75,7 @@ func resolveRepository(configRepo string, gqlClient data.Querier) (string, strin
 	} else {
 		repo, err := repository.Current()
 		if err != nil {
-			return "", "", fmt.Errorf("could not determine repository: %w\nRun this command from inside a git repository with a GitHub remote.", err)
+			return "", "", fmt.Errorf("could not determine repository: %w", err)
 		}
 		owner = repo.Owner
 		name = repo.Name
