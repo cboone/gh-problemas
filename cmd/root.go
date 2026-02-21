@@ -4,25 +4,23 @@ import (
 	"fmt"
 	"strings"
 
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/cli/go-gh/v2/pkg/api"
-	"github.com/cli/go-gh/v2/pkg/repository"
 	"github.com/cboone/gh-problemas/internal/config"
 	"github.com/cboone/gh-problemas/internal/data"
 	"github.com/cboone/gh-problemas/internal/ui"
 	"github.com/cboone/gh-problemas/internal/ui/views"
+	tea "github.com/charmbracelet/bubbletea"
+	"github.com/cli/go-gh/v2/pkg/api"
+	"github.com/cli/go-gh/v2/pkg/repository"
 	"github.com/spf13/cobra"
 )
 
-// version is set via ldflags at build time.
-var version = "dev"
-
 var rootCmd = &cobra.Command{
-	Use:     "gh-problemas",
-	Short:   "A TUI for GitHub issue management",
-	Long:    "gh-problemas is a terminal user interface for triaging and managing GitHub issues.",
-	Version: version,
-	RunE:    runApp,
+	Use:           "gh-problemas",
+	Short:         "A terminal UI for triaging and managing GitHub issues",
+	Long:          "gh-problemas is a terminal user interface for triaging and managing GitHub issues.",
+	SilenceUsage:  true,
+	SilenceErrors: true,
+	RunE:          runApp,
 }
 
 func runApp(cmd *cobra.Command, args []string) error {
@@ -77,7 +75,7 @@ func resolveRepository(configRepo string, gqlClient data.Querier) (string, strin
 	} else {
 		repo, err := repository.Current()
 		if err != nil {
-			return "", "", fmt.Errorf("could not determine repository: %w\nRun this command from inside a git repository with a GitHub remote.", err)
+			return "", "", fmt.Errorf("could not determine repository: %w", err)
 		}
 		owner = repo.Owner
 		name = repo.Name
@@ -97,4 +95,9 @@ func resolveRepository(configRepo string, gqlClient data.Querier) (string, strin
 // Execute runs the root command.
 func Execute() error {
 	return rootCmd.Execute()
+}
+
+// SetVersion sets the version string on the root command.
+func SetVersion(v string) {
+	rootCmd.Version = v
 }

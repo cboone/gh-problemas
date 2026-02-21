@@ -75,7 +75,7 @@ type listCommentsResponse struct {
 		Issue struct {
 			Comments struct {
 				PageInfo graphqlPageInfo `json:"pageInfo"`
-				Nodes    []commentNode  `json:"nodes"`
+				Nodes    []commentNode   `json:"nodes"`
 			} `json:"comments"`
 		} `json:"issue"`
 	} `json:"repository"`
@@ -99,10 +99,7 @@ func (r *listCommentsResponse) toResult() CommentListResult {
 	pi := r.Repository.Issue.Comments.PageInfo
 	return CommentListResult{
 		Comments: comments,
-		PageInfo: PageInfo{
-			HasNextPage: pi.HasNextPage,
-			EndCursor:   pi.EndCursor,
-		},
+		PageInfo: PageInfo(pi),
 	}
 }
 

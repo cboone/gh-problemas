@@ -1,23 +1,39 @@
-VERSION ?= $(shell git describe --tags --always --dirty 2>/dev/null || echo dev)
-LDFLAGS := -s -w -X github.com/cboone/gh-problemas/cmd.version=$(VERSION)
+VERSION ?= $(shell git describe --tags --always --dirty 2>/dev/null || echo "dev")
 BINARY  := gh-problemas
+OUTDIR  := bin
 
-.PHONY: build test lint vet install clean
+LDFLAGS := -ldflags "-X main.version=$(VERSION)"
 
-build:
-	go build -ldflags "$(LDFLAGS)" -o $(BINARY) .
+.PHONY: build test lint vet fmt clean cover tidy install help
 
-test:
+build: ## Build the binary
+	mkdir -p $(OUTDIR)
+	go build $(LDFLAGS) -o $(OUTDIR)/$(BINARY) .
+
+test: ## Run tests
 	go test ./...
 
-lint: vet
-	@echo "lint: ok (add golangci-lint when ready)"
+lint: ## Run golangci-lint
+	golangci-lint run ./...
 
-vet:
+vet: ## Run go vet
 	go vet ./...
 
-install: build
+fmt: ## Check formatting (exits non-zero if files need formatting)
+	@test -z "$$(gofmt -l .)" || { gofmt -l . && exit 1; }
+
+clean: ## Remove build artifacts
+	rm -rf $(OUTDIR) dist coverage.out
+
+cover: ## Run tests with coverage
+	go test -coverprofile=coverage.out ./...
+	go tool cover -func=coverage.out
+
+tidy: ## Tidy go.mod
+	go mod tidy
+
+install: build ## Install as gh extension
 	gh extension install .
 
-clean:
-	rm -f $(BINARY)
+help: ## Show this help
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  %-12s %s\n", $$1, $$2}'

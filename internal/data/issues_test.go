@@ -35,7 +35,7 @@ func TestList_ThreeIssues(t *testing.T) {
 					{
 						"number": 1, "title": "First issue", "state": "OPEN",
 						"createdAt": "2025-01-01T00:00:00Z", "updatedAt": "2025-01-02T00:00:00Z",
-						"author": map[string]string{"login": "alice"},
+						"author":    map[string]string{"login": "alice"},
 						"labels":    map[string]interface{}{"nodes": []interface{}{}},
 						"assignees": map[string]interface{}{"nodes": []interface{}{}},
 						"comments":  map[string]int{"totalCount": 3},
