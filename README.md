@@ -1,4 +1,4 @@
-# Gh Problemas
+# gh-problemas
 
 A terminal UI for triaging and managing GitHub issues.
 
