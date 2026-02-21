@@ -15,28 +15,30 @@
 credentials.json
 token.json
 
-# Go binaries
+# Binary
+/gh-problemas
+/bin/
+/dist/
+
+# Binaries for programs and plugins
 *.exe
 *.exe~
 *.dll
 *.so
 *.dylib
 
-# Go test artifacts
+# Test binary, built with `go test -c`
 *.test
+
+# Code coverage profiles and other test artifacts
 *.out
 coverage.*
 *.coverprofile
 profile.cov
 
-# Go workspace
+# Go workspace files
 go.work
 go.work.sum
 
 # Go dependencies
 # vendor/
-
-# Build output
-bin/
-dist/
-gh-problemas

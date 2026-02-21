@@ -14,15 +14,13 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// version is set via ldflags at build time.
-var version = "dev"
-
 var rootCmd = &cobra.Command{
-	Use:     "gh-problemas",
-	Short:   "A TUI for GitHub issue management",
-	Long:    "gh-problemas is a terminal user interface for triaging and managing GitHub issues.",
-	Version: version,
-	RunE:    runApp,
+	Use:           "gh-problemas",
+	Short:         "A terminal UI for triaging and managing GitHub issues",
+	Long:          "gh-problemas is a terminal user interface for triaging and managing GitHub issues.",
+	SilenceUsage:  true,
+	SilenceErrors: true,
+	RunE:          runApp,
 }
 
 func runApp(cmd *cobra.Command, args []string) error {
@@ -97,4 +95,9 @@ func resolveRepository(configRepo string, gqlClient data.Querier) (string, strin
 // Execute runs the root command.
 func Execute() error {
 	return rootCmd.Execute()
+}
+
+// SetVersion sets the version string on the root command.
+func SetVersion(v string) {
+	rootCmd.Version = v
 }
