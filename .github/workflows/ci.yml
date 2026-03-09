@@ -7,32 +7,8 @@ on:
     branches: [main]
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v6
-
-      - uses: actions/setup-go@v6
-        with:
-          go-version-file: go.mod
-
-      - name: Run tests
-        run: make test
-
-  lint:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v6
-
-      - uses: actions/setup-go@v6
-        with:
-          go-version-file: go.mod
-
-      - name: Run vet
-        run: make vet
-
-      - name: Check formatting
-        run: make fmt
-
-      - name: Run golangci-lint
-        uses: golangci/golangci-lint-action@v7
+  ci:
+    uses: cboone/gh-actions/.github/workflows/go-ci.yml@main
+    with:
+      run-lint: true
+      run-format-check: true
